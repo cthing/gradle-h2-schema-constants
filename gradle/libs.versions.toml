@@ -16,6 +16,7 @@ assertJ = "org.assertj:assertj-core:3.25.3"
 commonsIO = "commons-io:commons-io:2.16.1"
 commonsLang = "org.apache.commons:commons-lang3:3.14.0"
 cthingAnnots = "org.cthing:cthing-annotations:1.0.0"
+cthingProjectVersion = "org.cthing:cthing-projectversion:1.0.0"
 flyway = "org.flywaydb:flyway-core:10.7.2"
 h2 = "com.h2database:h2:2.2.224"
 junitApi = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
