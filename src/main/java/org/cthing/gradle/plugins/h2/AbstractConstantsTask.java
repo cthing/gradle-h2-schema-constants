@@ -274,28 +274,28 @@ public abstract class AbstractConstantsTask extends DefaultTask {
 
     private static void writeFileStart(final PrintWriter writer, final String packageName, final String className,
                                        final String modifier) {
-        writer.print("""
-                     //
-                     // DO NOT EDIT - Automatically generated file
-                     //
+        writer.format("""
+                      //
+                      // DO NOT EDIT - Automatically generated file
+                      //
 
-                     package %s;
+                      package %s;
 
-                     /**
-                      * Constants for database table names, column names, and character field lengths.
-                      */
-                     @SuppressWarnings("all")
-                     %sfinal class %s {
+                      /**
+                       * Constants for database table names, column names, and character field lengths.
+                       */
+                      @SuppressWarnings("all")
+                      %sfinal class %s {
 
-                     """.formatted(packageName, modifier, className));
+                      """, packageName, modifier, className);
     }
 
     private static void writeFileEnd(final PrintWriter writer, final String className) {
-        writer.print("""
+        writer.format("""
 
-                         private %s() { }
-                     }
-                     """.formatted(className));
+                          private %s() { }
+                      }
+                      """, className);
     }
 
     private void writeTableStart(final PrintWriter writer, final String schemaName, final String tableName,
@@ -306,15 +306,11 @@ public abstract class AbstractConstantsTask extends DefaultTask {
         final String qualifiedTableName = this.prefixWithSchema.get() ? schemaName + "." + tableName : tableName;
 
         if (!this.sizesOnly.get()) {
-            writer.println(String.format("    %sstatic final String TBL_%s = \"%s\";", modifier, tableConstant,
-                                         qualifiedTableName));
+            writer.format("    %sstatic final String TBL_%s = \"%s\";%n", modifier, tableConstant, qualifiedTableName);
         }
-        writer.println(String.format("    %sstatic final class %s {", modifier, tableConstant));
-        writer.println();
-        writer.println(String.format("        private %s() { }", tableConstant));
-        writer.println();
-        writer.println(String.format("        %sstatic final String SCHEMA = \"%s\";", modifier, schemaName));
-        writer.println();
+        writer.format("    %sstatic final class %s {%n%n", modifier, tableConstant);
+        writer.format("        private %s() { }%n%n", tableConstant);
+        writer.format("        %sstatic final String SCHEMA = \"%s\";%n%n", modifier, schemaName);
     }
 
     private static void writeTableEnd(final PrintWriter writer) {
@@ -329,11 +325,11 @@ public abstract class AbstractConstantsTask extends DefaultTask {
         final String col = "COL_" + colName.toUpperCase();
 
         if (!this.sizesOnly.get()) {
-            writer.println(String.format("        %sstatic final String %s = \"%s\";", modifier, col, colName));
-            writer.println(String.format("        %sstatic final boolean %s_NULLABLE = %s;", modifier, col, nullable));
+            writer.format("        %sstatic final String %s = \"%s\";%n", modifier, col, colName);
+            writer.format("        %sstatic final boolean %s_NULLABLE = %s;%n", modifier, col, nullable);
         }
         if (colType == Types.CHAR || colType == Types.VARCHAR) {
-            writer.println(String.format("        %sstatic final int %s_SIZE = %d;", modifier, col, colSize));
+            writer.format("        %sstatic final int %s_SIZE = %d;%n", modifier, col, colSize);
         }
         if (!this.sizesOnly.get()) {
             writer.println();
