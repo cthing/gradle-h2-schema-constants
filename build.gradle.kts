@@ -28,7 +28,7 @@ plugins {
     alias(libs.plugins.versions)
 }
 
-version = ProjectVersion("1.0.0", BuildType.snapshot)
+version = ProjectVersion("2.0.0", BuildType.snapshot)
 group = "org.cthing"
 description = "Gradle plugins that generate a Java source file with constants for table and column names in an H2 database."
 
@@ -64,9 +64,11 @@ gradlePlugin {
 
 dependencies {
     implementation(libs.commonsLang)
-    implementation(libs.cthingAnnots)
     implementation(libs.flyway)
     implementation(libs.h2)
+    implementation(libs.jspecify)
+
+    compileOnly(libs.cthingAnnots)
 
     testImplementation(libs.assertJ)
     testImplementation(libs.commonsIO)

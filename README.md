@@ -215,7 +215,7 @@ The following Gradle and Java versions are supported:
 
 | Plugin Version | Gradle Version | Minimum Java Version |
 |----------------|----------------|----------------------|
-| 1.0.0+         | 8.3+           | 17                   |
+| 2.x            | 8.3+           | 17                   |
 
 ## Building
 
