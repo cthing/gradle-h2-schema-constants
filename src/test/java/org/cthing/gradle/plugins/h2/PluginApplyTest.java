@@ -9,7 +9,6 @@ import java.io.File;
 import java.util.stream.Stream;
 
 import org.gradle.api.Project;
-import org.gradle.api.Task;
 import org.gradle.testfixtures.ProjectBuilder;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -18,6 +17,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.cthing.assertj.gradle.GradleProjectAssert.assertThat;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 
@@ -28,10 +28,9 @@ public class PluginApplyTest {
         final Project project = ProjectBuilder.builder().withName("testProject").withProjectDir(projectDir).build();
         project.getPluginManager().apply("org.cthing.h2-sql-constants");
 
-        final Task mainTask = project.getTasks().findByName("generateH2SqlConstants");
-        assertThat(mainTask).isNotNull().isInstanceOf(H2SqlConstantsTask.class);
+        assertThat(project).hasTaskWithType("generateH2SqlConstants", H2SqlConstantsTask.class);
 
-        final H2SqlConstantsTask task = (H2SqlConstantsTask)mainTask;
+        final H2SqlConstantsTask task = (H2SqlConstantsTask)project.getTasks().getByName("generateH2SqlConstants");
         assertThat(task.getGroup()).isEqualTo("Generate Constants");
         assertThat(task.getOutputDirectory().get().getAsFile().getPath()).endsWith("build/generated-src/h2-constants/main");
         assertThat(task.getClassname().isPresent()).isFalse();
@@ -46,10 +45,9 @@ public class PluginApplyTest {
         final Project project = ProjectBuilder.builder().withName("testProject").withProjectDir(projectDir).build();
         project.getPluginManager().apply("org.cthing.h2-flyway-constants");
 
-        final Task mainTask = project.getTasks().findByName("generateH2FlywayConstants");
-        assertThat(mainTask).isNotNull().isInstanceOf(H2FlywayConstantsTask.class);
+        assertThat(project).hasTaskWithType("generateH2FlywayConstants", H2FlywayConstantsTask.class);
 
-        final H2FlywayConstantsTask task = (H2FlywayConstantsTask)mainTask;
+        final H2FlywayConstantsTask task = (H2FlywayConstantsTask)project.getTasks().getByName("generateH2FlywayConstants");
         assertThat(task.getGroup()).isEqualTo("Generate Constants");
         assertThat(task.getOutputDirectory().get().getAsFile().getPath()).endsWith("build/generated-src/h2-constants/main");
         assertThat(task.getClassname().isPresent()).isFalse();
