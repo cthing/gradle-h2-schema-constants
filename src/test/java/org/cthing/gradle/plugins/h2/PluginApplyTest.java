@@ -17,7 +17,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.cthing.assertj.gradle.GradleProjectAssert.assertThat;
+import static org.cthing.assertj.gradle.GradleAssertions.assertThat;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 
@@ -28,16 +28,15 @@ public class PluginApplyTest {
         final Project project = ProjectBuilder.builder().withName("testProject").withProjectDir(projectDir).build();
         project.getPluginManager().apply("org.cthing.h2-sql-constants");
 
-        assertThat(project).hasTaskWithType("generateH2SqlConstants", H2SqlConstantsTask.class);
-
-        final H2SqlConstantsTask task = (H2SqlConstantsTask)project.getTasks().getByName("generateH2SqlConstants");
-        assertThat(task.getGroup()).isEqualTo("Generate Constants");
-        assertThat(task.getOutputDirectory().get().getAsFile().getPath()).endsWith("build/generated-src/h2-constants/main");
-        assertThat(task.getClassname().isPresent()).isFalse();
-        assertThat(task.getSizesOnly().get()).isFalse();
-        assertThat(task.getPrefixWithSchema().get()).isTrue();
-        assertThat(task.getFilePerSchema().get()).isFalse();
-        assertThat(task.getSourceAccess().get()).isEqualTo(SourceAccess.PUBLIC);
+        assertThat(project).hasTaskSatisfying("generateH2SqlConstants", H2SqlConstantsTask.class, task -> {
+            assertThat(task.getGroup()).isEqualTo("Generate Constants");
+            assertThat(task.getOutputDirectory()).getString().endsWith("build/generated-src/h2-constants/main");
+            assertThat(task.getClassname()).isEmpty();
+            assertThat(task.getSizesOnly()).contains(false);
+            assertThat(task.getPrefixWithSchema()).contains(true);
+            assertThat(task.getFilePerSchema()).contains(false);
+            assertThat(task.getSourceAccess()).contains(SourceAccess.PUBLIC);
+        });
     }
 
     @Test
@@ -45,16 +44,15 @@ public class PluginApplyTest {
         final Project project = ProjectBuilder.builder().withName("testProject").withProjectDir(projectDir).build();
         project.getPluginManager().apply("org.cthing.h2-flyway-constants");
 
-        assertThat(project).hasTaskWithType("generateH2FlywayConstants", H2FlywayConstantsTask.class);
-
-        final H2FlywayConstantsTask task = (H2FlywayConstantsTask)project.getTasks().getByName("generateH2FlywayConstants");
-        assertThat(task.getGroup()).isEqualTo("Generate Constants");
-        assertThat(task.getOutputDirectory().get().getAsFile().getPath()).endsWith("build/generated-src/h2-constants/main");
-        assertThat(task.getClassname().isPresent()).isFalse();
-        assertThat(task.getSizesOnly().get()).isFalse();
-        assertThat(task.getPrefixWithSchema().get()).isTrue();
-        assertThat(task.getFilePerSchema().get()).isFalse();
-        assertThat(task.getSourceAccess().get()).isEqualTo(SourceAccess.PUBLIC);
+        assertThat(project).hasTaskSatisfying("generateH2FlywayConstants", H2FlywayConstantsTask.class, task -> {
+            assertThat(task.getGroup()).isEqualTo("Generate Constants");
+            assertThat(task.getOutputDirectory()).getString().endsWith("build/generated-src/h2-constants/main");
+            assertThat(task.getClassname()).isEmpty();
+            assertThat(task.getSizesOnly()).contains(false);
+            assertThat(task.getPrefixWithSchema()).contains(true);
+            assertThat(task.getFilePerSchema()).contains(false);
+            assertThat(task.getSourceAccess()).contains(SourceAccess.PUBLIC);
+        });
     }
 
     public static Stream<Arguments> camelCaseProvider() {
