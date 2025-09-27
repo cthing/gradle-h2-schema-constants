@@ -44,22 +44,22 @@ gradlePlugin {
     vcsUrl = "https://github.com/cthing/gradle-h2-schema-constants"
 
     plugins {
-        create("h2SqlConstantsPlugin") {
+        create("h2SqlConstantsPlugin", Action {
             id = "org.cthing.h2-sql-constants"
             displayName = "Java constants from H2 SQL schema database"
             description = "A Gradle plugin that generates a Java source file with constants for table and column " +
                     "names in an H2 SQL schema database."
             tags = listOf("schema", "database", "constants", "h2", "sql")
             implementationClass = "org.cthing.gradle.plugins.h2.H2SqlConstantsPlugin"
-        }
-        create("h2FlywayConstantsPlugin") {
+        })
+        create("h2FlywayConstantsPlugin", Action {
             id = "org.cthing.h2-flyway-constants"
             displayName = "Java constants from H2 Flyway schema database"
             description = "A Gradle plugin that generates a Java source file with constants for table and column " +
                     "names in an H2 Flyway schema database."
             tags = listOf("schema", "database", "constants", "h2", "flyway")
             implementationClass = "org.cthing.gradle.plugins.h2.H2FlywayConstantsPlugin"
-        }
+        })
     }
 }
 
@@ -67,9 +67,9 @@ dependencies {
     implementation(libs.commonsLang)
     implementation(libs.flyway)
     implementation(libs.h2)
-    implementation(libs.jspecify)
 
     compileOnly(libs.cthingAnnots)
+    compileOnly(libs.jspecify)
 
     testImplementation(libs.assertJ)
     testImplementation(libs.assertJGradle)
