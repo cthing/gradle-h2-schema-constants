@@ -18,7 +18,7 @@ import org.gradle.api.tasks.TaskProvider;
 /**
  * Base class for the H2 constants plugins.
  */
-public abstract class AbstractConstantsPlugin implements Plugin<Project> {
+public abstract class ConstantsPluginBase implements Plugin<Project> {
 
     @Override
     public void apply(final Project project) {
@@ -31,7 +31,7 @@ public abstract class AbstractConstantsPlugin implements Plugin<Project> {
         final Provider<Directory> taskOutputDirectory =
                 project.getLayout().getBuildDirectory().dir("generated-src/h2-constants/" + sourceSet.getName());
 
-        final TaskProvider<? extends AbstractConstantsTask> h2TaskProvider =
+        final TaskProvider<? extends ConstantsTaskBase> h2TaskProvider =
                 project.getTasks().register(taskName, getTaskClass(), h2Task -> {
                     h2Task.setDescription(String.format("Generates constants for %s H2 database",
                                                         sourceSet.getName()));
@@ -53,7 +53,7 @@ public abstract class AbstractConstantsPlugin implements Plugin<Project> {
      *
      * @return Class of constants task.
      */
-    protected abstract Class<? extends AbstractConstantsTask> getTaskClass();
+    protected abstract Class<? extends ConstantsTaskBase> getTaskClass();
 
     /**
      * Provides the target portion of the preconfigured per source set constants task name.

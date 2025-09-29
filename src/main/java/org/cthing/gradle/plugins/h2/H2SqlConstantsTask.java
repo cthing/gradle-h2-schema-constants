@@ -38,7 +38,7 @@ import org.h2.tools.RunScript;
  * Generates a Java class file containing constants representing the tables and columns in an H2 database. This task
  * takes SQL files to populate the database.
  */
-public class H2SqlConstantsTask extends AbstractConstantsTask {
+public abstract class H2SqlConstantsTask extends ConstantsTaskBase {
 
     private static final Logger LOGGER = Logging.getLogger(H2SqlConstantsTask.class);
 

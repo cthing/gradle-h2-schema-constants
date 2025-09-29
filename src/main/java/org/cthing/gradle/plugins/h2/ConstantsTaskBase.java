@@ -32,7 +32,6 @@ import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.RegularFile;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
-import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.SetProperty;
@@ -45,7 +44,7 @@ import org.h2.jdbcx.JdbcDataSource;
 /**
  * Base class for all H2 constants tasks.
  */
-public abstract class AbstractConstantsTask extends DefaultTask {
+public abstract class ConstantsTaskBase extends DefaultTask {
 
     private static final String[] TABLE_TYPES = { "TABLE", "VIEW" };
     private static final int TABLE_RS_SCHEMA_NAME = 2;
@@ -55,31 +54,20 @@ public abstract class AbstractConstantsTask extends DefaultTask {
     private static final int COLUMN_RS_SIZE = 7;
     private static final int COLUMN_RS_NULLABLE = 11;
     private static final Pattern WORD_REGEX = Pattern.compile("[\\W_\\-]+|(?<=\\p{Ll})(?=\\p{Lu})");
-    private static final Logger LOGGER = Logging.getLogger(AbstractConstantsTask.class);
+    private static final Logger LOGGER = Logging.getLogger(ConstantsTaskBase.class);
 
     protected final Set<String> excludeTables = new HashSet<>();
 
-    private final Property<Boolean> sizesOnly;
-    private final Property<Boolean> prefixWithSchema;
-    private final Property<Boolean> filePerSchema;
-    private final SetProperty<String> excludeSchema;
-    private final Property<String> classname;
-    private final DirectoryProperty outputDirectory;
-    private final Property<SourceAccess> sourceAccess;
-
-    protected AbstractConstantsTask() {
+    protected ConstantsTaskBase() {
         setGroup("Generate Constants");
 
-        final ObjectFactory objects = getProject().getObjects();
-        this.sizesOnly = objects.property(Boolean.class).convention(Boolean.FALSE);
-        this.prefixWithSchema = objects.property(Boolean.class).convention(Boolean.TRUE);
-        this.filePerSchema = objects.property(Boolean.class).convention(Boolean.FALSE);
-        this.excludeSchema = objects.setProperty(String.class).convention(Set.of("INFORMATION_SCHEMA"));
-        this.classname = objects.property(String.class);
-        this.outputDirectory = objects.directoryProperty();
-        this.sourceAccess = objects.property(SourceAccess.class).convention(SourceAccess.PUBLIC);
+        getSizesOnly().convention(Boolean.FALSE);
+        getPrefixWithSchema().convention(Boolean.TRUE);
+        getFilePerSchema().convention(Boolean.FALSE);
+        getExcludeSchema().convention(Set.of("INFORMATION_SCHEMA"));
+        getSourceAccess().convention(SourceAccess.PUBLIC);
 
-        onlyIf(task -> !StringUtils.isBlank(this.classname.get()));
+        onlyIf(task -> !StringUtils.isBlank(getClassname().get()));
     }
 
     /**
@@ -88,9 +76,7 @@ public abstract class AbstractConstantsTask extends DefaultTask {
      * @return Fully qualified class name.
      */
     @Input
-    public Property<String> getClassname() {
-        return this.classname;
-    }
+    public abstract Property<String> getClassname();
 
     /**
      * Obtains the root location on the filesystem for the generated class.
@@ -98,9 +84,7 @@ public abstract class AbstractConstantsTask extends DefaultTask {
      * @return Location of the generated class.
      */
     @OutputDirectory
-    public DirectoryProperty getOutputDirectory() {
-        return this.outputDirectory;
-    }
+    public abstract DirectoryProperty getOutputDirectory();
 
     /**
      * Indicates if constants should be generated only for the size of varchar fields.
@@ -108,9 +92,7 @@ public abstract class AbstractConstantsTask extends DefaultTask {
      * @return {@code true} if only size constants are generated. Default is {@code false}.
      */
     @Input
-    public Property<Boolean> getSizesOnly() {
-        return this.sizesOnly;
-    }
+    public abstract Property<Boolean> getSizesOnly();
 
     /**
      * Indicates if table names are prefixed with the name of the schema.
@@ -118,9 +100,7 @@ public abstract class AbstractConstantsTask extends DefaultTask {
      * @return {@code true} if table names are prefixed with the schema name. Default is {@code false}.
      */
     @Input
-    public Property<Boolean> getPrefixWithSchema() {
-        return this.prefixWithSchema;
-    }
+    public abstract Property<Boolean> getPrefixWithSchema();
 
     /**
      * Indicates is a separate constants file is created for each schema in the database.
@@ -128,9 +108,7 @@ public abstract class AbstractConstantsTask extends DefaultTask {
      * @return {@code true} if a file is generated per schema. Default is {@code false}.
      */
     @Input
-    public Property<Boolean> getFilePerSchema() {
-        return this.filePerSchema;
-    }
+    public abstract Property<Boolean> getFilePerSchema();
 
     /**
      * Names of schema to exclude from the output.
@@ -138,9 +116,7 @@ public abstract class AbstractConstantsTask extends DefaultTask {
      * @return Names of schema to exclude from the output.
      */
     @Input
-    public SetProperty<String> getExcludeSchema() {
-        return this.excludeSchema;
-    }
+    public abstract SetProperty<String> getExcludeSchema();
 
     /**
      * Generates the file object representing a schema output file.
@@ -149,8 +125,8 @@ public abstract class AbstractConstantsTask extends DefaultTask {
      * @return Output file object
      */
     public Provider<RegularFile> outputFile(final String schemaSuffix) {
-        final Provider<String> pathname = this.classname.map(cname -> cname.replace('.', '/') + schemaSuffix + ".java");
-        return this.outputDirectory.file(pathname);
+        final Provider<String> pathname = getClassname().map(cname -> cname.replace('.', '/') + schemaSuffix + ".java");
+        return getOutputDirectory().file(pathname);
     }
 
     /**
@@ -168,9 +144,7 @@ public abstract class AbstractConstantsTask extends DefaultTask {
      * @return Access modifier for the generated constants.
      */
     @Input
-    public Property<SourceAccess> getSourceAccess() {
-        return this.sourceAccess;
-    }
+    public abstract Property<SourceAccess> getSourceAccess();
 
     /**
      * Creates a temporary database, loads it with the schema and writes the constants.
@@ -212,9 +186,9 @@ public abstract class AbstractConstantsTask extends DefaultTask {
      */
     private void writeConstants(final Connection conn) throws SQLException, IOException {
         final DatabaseMetaData meta = conn.getMetaData();
-        final String packageName = StringUtils.substringBeforeLast(this.classname.get(), ".");
-        final String classBaseName = StringUtils.substringAfterLast(this.classname.get(), ".");
-        final String modifier = this.sourceAccess.get() == SourceAccess.PUBLIC ? "public " : "";
+        final String packageName = StringUtils.substringBeforeLast(getClassname().get(), ".");
+        final String classBaseName = StringUtils.substringAfterLast(getClassname().get(), ".");
+        final String modifier = getSourceAccess().get() == SourceAccess.PUBLIC ? "public " : "";
 
         final File parentFile = outputFile().get().getAsFile().getParentFile();
         if (!parentFile.exists()) {
@@ -235,10 +209,10 @@ public abstract class AbstractConstantsTask extends DefaultTask {
                 }
 
                 final String schemaName = tableRS.getString(TABLE_RS_SCHEMA_NAME);
-                if (this.excludeSchema.get().contains(schemaName.toUpperCase())) {
+                if (getExcludeSchema().get().contains(schemaName.toUpperCase())) {
                     continue;
                 }
-                final String schemaSuffix = this.filePerSchema.get() ? toCamelCase(schemaName) : "";
+                final String schemaSuffix = getFilePerSchema().get() ? toCamelCase(schemaName) : "";
 
                 PrintWriter writer = writerMap.get(schemaSuffix);
                 if (writer == null) {
@@ -300,12 +274,12 @@ public abstract class AbstractConstantsTask extends DefaultTask {
 
     private void writeTableStart(final PrintWriter writer, final String schemaName, final String tableName,
                                  final String modifier) {
-        final String tableConstant = this.prefixWithSchema.get()
+        final String tableConstant = getPrefixWithSchema().get()
                                      ? schemaName.toUpperCase() + "_" + tableName.toUpperCase()
                                      : tableName.toUpperCase();
-        final String qualifiedTableName = this.prefixWithSchema.get() ? schemaName + "." + tableName : tableName;
+        final String qualifiedTableName = getPrefixWithSchema().get() ? schemaName + "." + tableName : tableName;
 
-        if (!this.sizesOnly.get()) {
+        if (!getSizesOnly().get()) {
             writer.format("    %sstatic final String TBL_%s = \"%s\";%n", modifier, tableConstant, qualifiedTableName);
         }
         writer.format("    %sstatic final class %s {%n%n", modifier, tableConstant);
@@ -324,14 +298,14 @@ public abstract class AbstractConstantsTask extends DefaultTask {
                              final boolean nullable, final String modifier) {
         final String col = "COL_" + colName.toUpperCase();
 
-        if (!this.sizesOnly.get()) {
+        if (!getSizesOnly().get()) {
             writer.format("        %sstatic final String %s = \"%s\";%n", modifier, col, colName);
             writer.format("        %sstatic final boolean %s_NULLABLE = %s;%n", modifier, col, nullable);
         }
         if (colType == Types.CHAR || colType == Types.VARCHAR) {
             writer.format("        %sstatic final int %s_SIZE = %d;%n", modifier, col, colSize);
         }
-        if (!this.sizesOnly.get()) {
+        if (!getSizesOnly().get()) {
             writer.println();
         }
     }

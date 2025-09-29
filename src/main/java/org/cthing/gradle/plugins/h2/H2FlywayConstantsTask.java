@@ -22,16 +22,12 @@ import org.gradle.api.tasks.TaskAction;
  * Generates a Java class file containing constants representing the tables and columns in an H2 database. This task
  * performs a Flyway migration to populate the database.
  */
-public class H2FlywayConstantsTask extends AbstractConstantsTask {
-
-    private final ListProperty<String> locations;
-
+public abstract class H2FlywayConstantsTask extends ConstantsTaskBase {
 
     public H2FlywayConstantsTask() {
         this.excludeTables.add("flyway_schema_history");
-        this.locations = getProject().getObjects().listProperty(String.class);
 
-        onlyIf(task -> !this.locations.get().isEmpty());
+        onlyIf(task -> !getLocations().get().isEmpty());
     }
 
     /**
@@ -40,9 +36,7 @@ public class H2FlywayConstantsTask extends AbstractConstantsTask {
      * @return Directories to scan for Flyway migration files.
      */
     @Input
-    public ListProperty<String> getLocations() {
-        return this.locations;
-    }
+    public abstract ListProperty<String> getLocations();
 
     /**
      * Obtains the Flyway migration files.
@@ -51,7 +45,7 @@ public class H2FlywayConstantsTask extends AbstractConstantsTask {
      */
     @InputFiles
     public FileTree getMigrationFiles() {
-        return getProject().files(this.locations).getAsFileTree();
+        return getProject().files(getLocations()).getAsFileTree();
     }
 
     /**
@@ -61,7 +55,7 @@ public class H2FlywayConstantsTask extends AbstractConstantsTask {
      * @param dirs  Directories to scan for Flyway migration files
      */
     public void locations(final String... dirs) {
-        this.locations.addAll(dirs);
+        getLocations().addAll(dirs);
     }
 
     /**
@@ -79,7 +73,7 @@ public class H2FlywayConstantsTask extends AbstractConstantsTask {
     }
 
     private Location[] processLocations() {
-        return this.locations.get().stream()
+        return getLocations().get().stream()
                              .map(locStr -> new Location(Location.FILESYSTEM_PREFIX + getProject().file(locStr)
                                                                                                   .getAbsolutePath()))
                              .toArray(Location[]::new);

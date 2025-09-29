@@ -77,6 +77,6 @@ public class PluginApplyTest {
     @ParameterizedTest
     @MethodSource("camelCaseProvider")
     public void testToCamelCase(final String original, final String expected) {
-        assertThat(AbstractConstantsTask.toCamelCase(original)).isEqualTo(expected);
+        assertThat(ConstantsTaskBase.toCamelCase(original)).isEqualTo(expected);
     }
 }

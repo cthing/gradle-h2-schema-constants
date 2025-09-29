@@ -9,10 +9,10 @@ package org.cthing.gradle.plugins.h2;
  * Generates a Java class file containing constants representing the name of tables and columns in
  * an H2 SQL schema.
  */
-public class H2SqlConstantsPlugin extends AbstractConstantsPlugin {
+public class H2SqlConstantsPlugin extends ConstantsPluginBase {
 
     @Override
-    protected Class<? extends AbstractConstantsTask> getTaskClass() {
+    protected Class<? extends ConstantsTaskBase> getTaskClass() {
         return H2SqlConstantsTask.class;
     }
 

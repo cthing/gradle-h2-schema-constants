@@ -9,10 +9,10 @@ package org.cthing.gradle.plugins.h2;
  * Generates a Java class file containing constants representing the name of tables and columns in
  * an H2 Flyway schema.
  */
-public class H2FlywayConstantsPlugin extends AbstractConstantsPlugin {
+public class H2FlywayConstantsPlugin extends ConstantsPluginBase {
 
     @Override
-    protected Class<? extends AbstractConstantsTask> getTaskClass() {
+    protected Class<? extends ConstantsTaskBase> getTaskClass() {
         return H2FlywayConstantsTask.class;
     }
 
