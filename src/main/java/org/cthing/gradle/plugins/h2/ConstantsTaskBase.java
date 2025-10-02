@@ -29,9 +29,11 @@ import org.cthing.annotations.AccessForTesting;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
 import org.gradle.api.file.DirectoryProperty;
+import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.file.RegularFile;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
+import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.SetProperty;
@@ -56,9 +58,14 @@ public abstract class ConstantsTaskBase extends DefaultTask {
     private static final Pattern WORD_REGEX = Pattern.compile("[\\W_\\-]+|(?<=\\p{Ll})(?=\\p{Lu})");
     private static final Logger LOGGER = Logging.getLogger(ConstantsTaskBase.class);
 
+    protected final ObjectFactory objectFactory;
+    protected final ProjectLayout layout;
     protected final Set<String> excludeTables = new HashSet<>();
 
-    protected ConstantsTaskBase() {
+    protected ConstantsTaskBase(final ObjectFactory objectFactory, final ProjectLayout layout) {
+        this.objectFactory = objectFactory;
+        this.layout = layout;
+
         setGroup("Generate Constants");
 
         getSizesOnly().convention(Boolean.FALSE);

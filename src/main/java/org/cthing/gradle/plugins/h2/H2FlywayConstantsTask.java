@@ -7,11 +7,14 @@ package org.cthing.gradle.plugins.h2;
 
 import java.sql.Connection;
 
+import javax.inject.Inject;
 import javax.sql.DataSource;
 
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.Location;
 import org.gradle.api.file.FileTree;
+import org.gradle.api.file.ProjectLayout;
+import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFiles;
@@ -24,7 +27,10 @@ import org.gradle.api.tasks.TaskAction;
  */
 public abstract class H2FlywayConstantsTask extends ConstantsTaskBase {
 
-    public H2FlywayConstantsTask() {
+    @Inject
+    public H2FlywayConstantsTask(final ObjectFactory objectFactory, final ProjectLayout layout) {
+        super(objectFactory, layout);
+
         this.excludeTables.add("flyway_schema_history");
 
         onlyIf(task -> !getLocations().get().isEmpty());
@@ -45,7 +51,7 @@ public abstract class H2FlywayConstantsTask extends ConstantsTaskBase {
      */
     @InputFiles
     public FileTree getMigrationFiles() {
-        return getProject().files(getLocations()).getAsFileTree();
+        return this.objectFactory.fileCollection().from(getLocations()).getAsFileTree();
     }
 
     /**
@@ -74,8 +80,8 @@ public abstract class H2FlywayConstantsTask extends ConstantsTaskBase {
 
     private Location[] processLocations() {
         return getLocations().get().stream()
-                             .map(locStr -> new Location(Location.FILESYSTEM_PREFIX + getProject().file(locStr)
-                                                                                                  .getAbsolutePath()))
+                             .map(locStr -> this.layout.getProjectDirectory().file(locStr).getAsFile().getAbsolutePath())
+                             .map(absPath -> new Location(Location.FILESYSTEM_PREFIX + absPath))
                              .toArray(Location[]::new);
     }
 }

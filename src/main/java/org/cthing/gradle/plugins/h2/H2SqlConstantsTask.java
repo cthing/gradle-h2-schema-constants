@@ -14,12 +14,15 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Set;
 
+import javax.inject.Inject;
 import javax.sql.DataSource;
 
 import org.gradle.api.file.FileTree;
 import org.gradle.api.file.FileTreeElement;
+import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
+import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.specs.Spec;
 import org.gradle.api.tasks.Input;
@@ -45,9 +48,11 @@ public abstract class H2SqlConstantsTask extends ConstantsTaskBase {
     private final ListProperty<Object> source;
     private final PatternSet patternSet;
 
+    @Inject
+    public H2SqlConstantsTask(final ObjectFactory objectFactory, final ProjectLayout layout) {
+        super(objectFactory, layout);
 
-    public H2SqlConstantsTask() {
-        this.source = getProject().getObjects().listProperty(Object.class);
+        this.source = objectFactory.listProperty(Object.class);
         this.patternSet = new PatternSet();
     }
 
@@ -64,8 +69,13 @@ public abstract class H2SqlConstantsTask extends ConstantsTaskBase {
     @SkipWhenEmpty
     @PathSensitive(PathSensitivity.ABSOLUTE)
     public FileTree getSource() {
-        final FileTree src = getProject().files(this.source).getAsFileTree();
-        return src.matching(this.patternSet);
+        return this.objectFactory.fileCollection()
+                                 .from(this.source)
+                                 .getAsFileTree()
+                                 .matching(this.patternSet);
+
+//        final FileTree src = this.objectFactory.fileCollection().from(this.source).getAsFileTree();
+//        return src.matching(this.patternSet);
     }
 
     /**
